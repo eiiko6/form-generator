@@ -1,41 +1,53 @@
 json_output = "answers.json"
+submit_button = "Send"
 
 [[fields]]
 name = "full_name"
+title = "Full Name"
 description = "Your full name"
 answer_type = "text"
+html_before = "<h2>Identity</h2>"
 
 [[fields]]
 name = "age"
+title = "Age"
 description = "Your age"
 answer_type = "number"
 
 [[fields]]
 name = "email"
+title = "Email Address"
 description = "Your email address"
 answer_type = "email"
-
-[[fields]]
-name = "password"
-description = "Set a password"
-answer_type = "password"
-
-[[fields]]
-name = "website"
-description = "Personal website (optional)"
-answer_type = "url"
-
-[[fields]]
-name = "about_you"
-description = "Tell us about yourself"
-answer_type = "textarea"
+html_before = "<h2>Contact Info</h2>"
 
 [[fields]]
 name = "contact_number"
+title = "Contact Number"
 description = "Phone number"
 answer_type = "tel"
 
 [[fields]]
+name = "website"
+title = "Website"
+description = "Personal website (optional)"
+answer_type = "url"
+html_after = "<h2>More About You</h2>"
+
+[[fields]]
+name = "about_you"
+title = "About You"
+description = "Tell us about yourself"
+answer_type = "textarea"
+
+[[fields]]
 name = "favorite_color"
+title = "Favorite Color"
 description = "Favorite color (text)"
 answer_type = "text"
+
+[[fields]]
+name = "password"
+title = "Password"
+description = "Set a password"
+answer_type = "password"
