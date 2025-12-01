@@ -1,0 +1,24 @@
+{% extends "_layout.html" %}
+
+{% block title %}Form{% endblock %}
+
+{% block content %}
+<h1>Dynamic Form</h1>
+<form action="/submit" method="POST" autocomplete="off">
+    {% for f in fields %}
+    <div class="field">
+        <label for="{{ f.name }}">{{ f.description }}</label>
+        <div class="desc">{{ f.description }}</div>
+        {% if f.answer_type == "textarea" %}
+            <textarea id="{{ f.name }}" name="{{ f.name }}" rows="5"></textarea>
+        {% elif f.answer_type == "select" %}
+            <select id="{{ f.name }}" name="{{ f.name }}"><option value="">(no options)</option></select>
+        {% else %}
+            <input id="{{ f.name }}" name="{{ f.name }}" type="{{ f.answer_type }}">
+        {% endif %}
+    </div>
+    {% endfor %}
+    <div><button type="submit">Submit</button></div>
+</form>
+{% endblock %}
+

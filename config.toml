@@ -1,0 +1,41 @@
+json_output = "answers.json"
+
+[[fields]]
+name = "full_name"
+description = "Your full name"
+answer_type = "text"
+
+[[fields]]
+name = "age"
+description = "Your age"
+answer_type = "number"
+
+[[fields]]
+name = "email"
+description = "Your email address"
+answer_type = "email"
+
+[[fields]]
+name = "password"
+description = "Set a password"
+answer_type = "password"
+
+[[fields]]
+name = "website"
+description = "Personal website (optional)"
+answer_type = "url"
+
+[[fields]]
+name = "about_you"
+description = "Tell us about yourself"
+answer_type = "textarea"
+
+[[fields]]
+name = "contact_number"
+description = "Phone number"
+answer_type = "tel"
+
+[[fields]]
+name = "favorite_color"
+description = "Favorite color (text)"
+answer_type = "text"
