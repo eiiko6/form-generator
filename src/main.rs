@@ -45,7 +45,6 @@ struct FieldDef {
 
 #[derive(Debug, Deserialize)]
 struct AppConfig {
-    json_output: String,
     submit_button: String,
     fields: Vec<FieldDef>,
 }
@@ -60,6 +59,7 @@ struct ResponseEntry {
 struct AppState {
     cfg: Arc<AppConfig>,
     file_lock: Arc<Mutex<()>>,
+    output_file: String,
 }
 
 #[tokio::main]
@@ -74,7 +74,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!(
         "Loaded config: '{}', writing answers to '{}' with {} fields",
         cli.config_path,
-        cfg.json_output,
+        cli.output_file,
         cfg.fields.len()
     );
 
@@ -105,6 +105,7 @@ async fn main() -> anyhow::Result<()> {
     let state = AppState {
         cfg: Arc::new(cfg),
         file_lock: Arc::new(Mutex::new(())),
+        output_file: cli.output_file.clone(),
     };
 
     let app = Router::new()
@@ -160,7 +161,7 @@ async fn submit(
     };
 
     let _guard = state.file_lock.lock().await;
-    let path = &state.cfg.json_output;
+    let path = &state.output_file;
 
     let mut existing: Vec<ResponseEntry> = match std::fs::read_to_string(path) {
         Ok(raw) => serde_json::from_str(&raw).unwrap_or(Vec::new()),

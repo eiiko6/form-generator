@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-container">
-  <form action="/submit" method="POST" autocomplete="off">
+  <form action="submit" method="POST" autocomplete="off">
       {% for f in fields %}
       {% if f.html_before.is_some() %}
           {{ f.html_before.as_ref().unwrap() | safe }}
