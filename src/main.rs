@@ -18,13 +18,17 @@ use tower_http::cors::{Any, CorsLayer};
 #[derive(Debug, Deserialize)]
 struct FieldDef {
     name: String,
+    title: String,
     description: String,
     answer_type: String,
+    html_before: Option<String>,
+    html_after: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 struct AppConfig {
     json_output: String,
+    submit_button: String,
     fields: Vec<FieldDef>,
 }
 
@@ -111,11 +115,13 @@ async fn render_form(State(state): State<AppState>) -> impl IntoResponse {
     struct FormTemplate<'a> {
         fields: &'a [FieldDef],
         lang: &'a str,
+        submit_button: &'a str,
     }
 
     let tmpl = FormTemplate {
         fields: &state.cfg.fields,
         lang: "en",
+        submit_button: &state.cfg.submit_button,
     };
     match tmpl.render() {
         Ok(html) => Html(html).into_response(),
