@@ -15,6 +15,24 @@ use tokio::sync::Mutex;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 use tower_http::cors::{Any, CorsLayer};
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+pub struct Cli {
+    /// Config path
+    #[arg(short, long, default_value = "config.toml")]
+    config_path: String,
+
+    /// Output file
+    #[arg(short, long, default_value = "answers.json")]
+    output_file: String,
+
+    /// Verbose mode
+    #[arg(short, long)]
+    verbose: bool,
+}
+
 #[derive(Debug, Deserialize)]
 struct FieldDef {
     name: String,
@@ -46,13 +64,16 @@ struct AppState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let cli = Cli::parse();
+
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).ok();
 
     // load config
-    let cfg = load_config("config.toml").context("loading config.toml")?;
+    let cfg = load_config(&cli.config_path).context(format!("loading {}", cli.config_path))?;
     tracing::info!(
-        "Loaded config: json_output='{}' with {} fields",
+        "Loaded config: '{}', writing answers to '{}' with {} fields",
+        cli.config_path,
         cfg.json_output,
         cfg.fields.len()
     );
@@ -93,7 +114,7 @@ async fn main() -> anyhow::Result<()> {
         .layer(cors)
         .layer(GovernorLayer::new(governor_conf));
 
-    let port = std::env::var("SERVER_PORT").unwrap_or_else(|_| "8081".to_string());
+    let port = std::env::var("SERVER_PORT").unwrap_or("8081".to_string());
     let addr = format!("127.0.0.1:{port}");
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
@@ -142,7 +163,7 @@ async fn submit(
     let path = &state.cfg.json_output;
 
     let mut existing: Vec<ResponseEntry> = match std::fs::read_to_string(path) {
-        Ok(raw) => serde_json::from_str(&raw).unwrap_or_else(|_| Vec::new()),
+        Ok(raw) => serde_json::from_str(&raw).unwrap_or(Vec::new()),
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Vec::new(),
         Err(e) => {
             tracing::error!("Failed to read {}: {}", path, e);

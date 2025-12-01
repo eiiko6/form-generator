@@ -3,27 +3,30 @@
 {% block title %}Form{% endblock %}
 
 {% block content %}
-<form action="/submit" method="POST" autocomplete="off">
-    {% for f in fields %}
-    {% if f.html_before.is_some() %}
-        {{ f.html_before.as_ref().unwrap() | safe }}
-    {% endif %}
-    <div class="field">
-        <label>{{ f.title }}</label>
-        <div class="desc">{{ f.description }}</div>
-        {% if f.answer_type == "textarea" %}
-            <textarea id="{{ f.name }}" name="{{ f.name }}" rows="5"></textarea>
-        {% elif f.answer_type == "select" %}
-            <select id="{{ f.name }}" name="{{ f.name }}"><option value="">(no options)</option></select>
-        {% else %}
-            <input id="{{ f.name }}" name="{{ f.name }}" type="{{ f.answer_type }}">
-        {% endif %}
-    </div>
-    {% if f.html_after.is_some() %}
-        {{ f.html_after.as_ref().unwrap() | safe }}
-    {% endif %}
-    {% endfor %}
-  <div><button type="submit">{{ submit_button }}</button></div>
-</form>
+<div class="form-container">
+  <form action="/submit" method="POST" autocomplete="off">
+      {% for f in fields %}
+      {% if f.html_before.is_some() %}
+          {{ f.html_before.as_ref().unwrap() | safe }}
+      {% endif %}
+      <div class="field">
+          <label for="{{ f.name }}">{{ f.title }}</label>
+          <div class="desc">{{ f.description }}</div>
+          {% if f.answer_type == "textarea" %}
+              <textarea id="{{ f.name }}" name="{{ f.name }}" rows="10" placeholder="{{ f.title|lower }}"></textarea>
+          {% elif f.answer_type == "select" %}
+              <select id="{{ f.name }}" name="{{ f.name }}">
+                  <option value="">Select an option</option>
+              </select>
+          {% else %}
+              <input id="{{ f.name }}" name="{{ f.name }}" type="{{ f.answer_type }}" placeholder="{{ f.title|lower }}">
+          {% endif %}
+      </div>
+      {% if f.html_after.is_some() %}
+          {{ f.html_after.as_ref().unwrap() | safe }}
+      {% endif %}
+      {% endfor %}
+    <div class="submit-container"><button type="submit">{{ submit_button }}</button></div>
+  </form>
+</div>
 {% endblock %}
-
