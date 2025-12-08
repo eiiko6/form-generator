@@ -1,8 +1,17 @@
+use std::{net::SocketAddr, time::Duration};
+
 use anyhow::Context;
+use axum::{
+    Router,
+    http::{Method, header},
+    response::Redirect,
+    routing::get,
+};
 use clap::Parser;
 
-use form_generator::config::load_config;
-use form_generator::run_server;
+use form_generator::{app_router, config::load_config};
+use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
+use tower_http::cors::{Any, CorsLayer};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -32,10 +41,50 @@ async fn main() -> anyhow::Result<()> {
         cfg.fields.len()
     );
 
+    // CORS
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods([Method::GET, Method::POST])
+        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
+
+    // rate limiter
+    let governor_conf = GovernorConfigBuilder::default()
+        .per_second(3)
+        .burst_size(10)
+        .finish()
+        .unwrap();
+
+    // a separate background task to clean up
+    let governor_limiter = governor_conf.limiter().clone();
+    std::thread::spawn(move || {
+        let interval = Duration::from_secs(60);
+        loop {
+            std::thread::sleep(interval);
+            governor_limiter.retain_recent();
+        }
+    });
+
+    let app = Router::new()
+        .merge(app_router(cfg, cli.output_file))
+        .route("/", get(form_redirect))
+        .layer(cors)
+        .layer(GovernorLayer::new(governor_conf));
+
     let port = std::env::var("SERVER_PORT").unwrap_or("8081".to_string());
     let addr = format!("127.0.0.1:{port}");
 
-    run_server(cfg, cli.output_file, &addr).await?;
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    tracing::info!("Listening on {}", addr);
+
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await?;
 
     Ok(())
+}
+
+async fn form_redirect() -> Redirect {
+    Redirect::to("/form")
 }
