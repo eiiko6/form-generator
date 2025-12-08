@@ -29,3 +29,7 @@ See [config.toml](./config.toml) for an example.
   * `answer_type`: Type of input (`text`, `number`, `email`, `password`, `url`, `tel`, `textarea`).
   * `html_before` (optional): HTML snippet rendered before the field.
   * `html_after` (optional): HTML snippet rendered after the field.
+
+## Lib
+
+This crate also provides a library so you can run the form server alongside another app.
