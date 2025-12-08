@@ -16,7 +16,12 @@ use crate::handlers::AppConfig;
 
 /// Returns an `axum::Router` configured with the `/form` and `/submit` routes
 /// This router can be merged into another router using `merge`.
-pub fn app_router(cfg: AppConfig, output_file: String) -> Router {
+pub fn app_router(
+    cfg: AppConfig,
+    output_file: String,
+    form_route: &str,
+    submit_route: &str,
+) -> Router {
     let state = AppState {
         cfg: Arc::new(cfg),
         file_lock: Arc::new(Mutex::new(())),
@@ -24,7 +29,7 @@ pub fn app_router(cfg: AppConfig, output_file: String) -> Router {
     };
 
     Router::new()
-        .route("/form", get(render_form))
-        .route("/submit", post(submit))
+        .route(form_route, get(render_form))
+        .route(submit_route, post(submit))
         .with_state(state)
 }

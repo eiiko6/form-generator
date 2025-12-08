@@ -32,4 +32,5 @@ See [config.toml](./config.toml) for an example.
 
 ## Lib
 
-This crate also provides a library so you can run the form server alongside another app.
+This crate also provides a library so you can embed the form into an axum server.  
+The `app_router` function provides an axum router with provided routes.

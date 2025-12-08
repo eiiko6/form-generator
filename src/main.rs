@@ -9,7 +9,7 @@ use axum::{
 };
 use clap::Parser;
 
-use form_generator::{app_router, config::load_config};
+use form_generator::config::load_config;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 use tower_http::cors::{Any, CorsLayer};
 
@@ -65,7 +65,12 @@ async fn main() -> anyhow::Result<()> {
     });
 
     let app = Router::new()
-        .merge(app_router(cfg, cli.output_file))
+        .merge(form_generator::app_router(
+            cfg,
+            cli.output_file,
+            "/form",
+            "/submit",
+        ))
         .route("/", get(form_redirect))
         .layer(cors)
         .layer(GovernorLayer::new(governor_conf));
