@@ -19,8 +19,8 @@ struct Cli {
     #[arg(short, long, default_value = "config.toml")]
     config_path: String,
 
-    #[arg(short, long, default_value = "answers.json")]
-    output_file: String,
+    #[arg(short, long)]
+    output_file: Option<String>,
 
     #[arg(short, long)]
     verbose: bool,
@@ -34,10 +34,16 @@ async fn main() -> anyhow::Result<()> {
     tracing::subscriber::set_global_default(subscriber).ok();
 
     let cfg = load_config(&cli.config_path).context(format!("loading {}", cli.config_path))?;
+
+    let output_file = cli
+        .output_file
+        .or_else(|| cfg.json_output.clone())
+        .unwrap_or_else(|| "answers.json".to_string());
+
     tracing::info!(
         "Loaded config: '{}', writing answers to '{}' with {} fields",
         cli.config_path,
-        cli.output_file,
+        output_file,
         cfg.fields.len()
     );
 
@@ -67,7 +73,7 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .merge(form_generator::app_router(
             cfg,
-            cli.output_file,
+            output_file,
             "/form",
             "/submit",
         ))
@@ -76,7 +82,7 @@ async fn main() -> anyhow::Result<()> {
         .layer(GovernorLayer::new(governor_conf));
 
     let port = std::env::var("SERVER_PORT").unwrap_or("8081".to_string());
-    let addr = format!("127.0.0.1:{port}");
+    let addr = format!("0.0.0.0:{port}");
 
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     tracing::info!("Listening on {}", addr);

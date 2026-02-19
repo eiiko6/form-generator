@@ -1,53 +1,74 @@
+# Path where the submitted JSON data will be appended
 json_output = "answers.json"
-submit_button = "Send"
 
+# Title of the page and form
+form_title = "User Onboarding Survey"
+
+# Text displayed on the primary action button
+submit_button = "Complete Submission"
+
+# Standard single-line input
 [[fields]]
-name = "full_name"
-title = "Full Name"
-description = "Your full name"
+name = "username"
+title = "Username"
+description = "Enter your preferred display name"
 answer_type = "text"
-html_before = "<h2>Identity</h2>"
+html_before = "<h2>Account Information</h2>" # Append html before this element
 
+# Numeric input
 [[fields]]
-name = "age"
-title = "Age"
-description = "Your age"
+name = "years_experience"
+title = "Years of Experience"
+description = "How many years have you worked in this field?"
 answer_type = "number"
 
+# Email specific input
 [[fields]]
-name = "email"
+name = "contact_email"
 title = "Email Address"
-description = "Your email address"
+description = "Where should we send your confirmation?"
 answer_type = "email"
-html_before = "<h2>Contact Info</h2>"
 
+# Obscured text input
 [[fields]]
-name = "contact_number"
-title = "Contact Number"
-description = "Phone number"
-answer_type = "tel"
+name = "secret_key"
+title = "Secret Key"
+description = "Enter your private access code"
+answer_type = "password"
 
+# Web address input
 [[fields]]
-name = "website"
-title = "Website"
-description = "Personal website (optional)"
+name = "portfolio_link"
+title = "Portfolio URL"
+description = "Link to your personal website"
 answer_type = "url"
-html_after = "<h2>More About You</h2>"
 
+# Telephone number input
 [[fields]]
-name = "about_you"
-title = "About You"
-description = "Tell us about yourself"
+name = "phone_number"
+title = "Phone Number"
+description = "Include your country code"
+answer_type = "tel"
+html_after = "<h2>Detailed Background</h2>" # Append html after this element
+
+# Multi-line text box
+[[fields]]
+name = "bio"
+title = "Short Biography"
+description = "Tell us a bit about yourself"
 answer_type = "textarea"
 
+# Dropdown menu (uses the 'options' array)
 [[fields]]
-name = "favorite_color"
-title = "Favorite Color"
-description = "Favorite color (text)"
-answer_type = "text"
+name = "region"
+title = "Preferred Region"
+description = "Select your primary work location"
+answer_type = "select"
+options = ["North America", "Europe", "Asia", "Other"]
 
+# Toggle/Boolean input
 [[fields]]
-name = "password"
-title = "Password"
-description = "Set a password"
-answer_type = "password"
+name = "tos_agree"
+title = "Terms of Service"
+description = "I have read and agree to the user guidelines"
+answer_type = "checkbox"

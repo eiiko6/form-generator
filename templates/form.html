@@ -1,27 +1,51 @@
 {% extends "_layout.html" %}
 
-{% block title %}Form{% endblock %}
+{% block title %}{{ form_title }}{% endblock %}
 
 {% block content %}
 <div class="form-container">
+  <h1>{{ form_title }}</h1>
+
   <form action="submit" method="POST" autocomplete="off">
       {% for f in fields %}
       {% if f.html_before.is_some() %}
           {{ f.html_before.as_ref().unwrap() | safe }}
       {% endif %}
+
       <div class="field">
-          <label for="{{ f.name }}">{{ f.title }}</label>
-          <div class="desc">{{ f.description }}</div>
-          {% if f.answer_type == "textarea" %}
-              <textarea id="{{ f.name }}" name="{{ f.name }}" rows="10" placeholder="{{ f.title|lower }}"></textarea>
-          {% elif f.answer_type == "select" %}
-              <select id="{{ f.name }}" name="{{ f.name }}">
-                  <option value="">Select an option</option>
-              </select>
+          {% if f.answer_type == "checkbox" %}
+              <label for="{{ f.name }}" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                  <input id="{{ f.name }}" name="{{ f.name }}" type="checkbox" value="true">
+                  <div style="display: flex; flex-direction: column;">
+                      <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">{{ f.title }}</span>
+                      <span class="desc" style="margin: 4px 0 0 0;">{{ f.description }}</span>
+                  </div>
+              </label>
           {% else %}
-              <input id="{{ f.name }}" name="{{ f.name }}" type="{{ f.answer_type }}" placeholder="{{ f.title|lower }}">
+              <label for="{{ f.name }}">
+                  <span style="display: block;">{{ f.title }}</span>
+                  <span class="desc">{{ f.description }}</span>
+              </label>
+
+              {% if f.answer_type == "textarea" %}
+                  <textarea id="{{ f.name }}" name="{{ f.name }}" rows="10" placeholder="{{ f.title|lower }}"></textarea>
+
+              {% elif f.answer_type == "select" %}
+                  <select id="{{ f.name }}" name="{{ f.name }}">
+                      <option value="">Select an option</option>
+                      {% if f.options.is_some() %}
+                          {% for opt in f.options.as_ref().unwrap() %}
+                              <option value="{{ opt }}">{{ opt }}</option>
+                          {% endfor %}
+                      {% endif %}
+                  </select>
+
+              {% else %}
+                  <input id="{{ f.name }}" name="{{ f.name }}" type="{{ f.answer_type }}" placeholder="{{ f.title|lower }}">
+              {% endif %}
           {% endif %}
       </div>
+
       {% if f.html_after.is_some() %}
           {{ f.html_after.as_ref().unwrap() | safe }}
       {% endif %}

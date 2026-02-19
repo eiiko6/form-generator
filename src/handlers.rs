@@ -12,11 +12,12 @@ use tokio::sync::Mutex;
 #[derive(Debug, Deserialize)]
 pub struct FieldDef {
     pub name: String,
-    title: String,
-    description: String,
-    answer_type: String,
-    html_before: Option<String>,
-    html_after: Option<String>,
+    pub title: String,
+    pub description: String,
+    pub answer_type: String,
+    pub html_before: Option<String>,
+    pub html_after: Option<String>,
+    pub options: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -27,7 +28,9 @@ struct ResponseEntry {
 
 #[derive(Debug, Deserialize)]
 pub struct AppConfig {
-    submit_button: String,
+    pub json_output: Option<String>,
+    pub form_title: String,
+    pub submit_button: String,
     pub fields: Vec<FieldDef>,
 }
 
@@ -42,15 +45,17 @@ pub async fn render_form(State(state): State<AppState>) -> impl IntoResponse {
     #[derive(Template)]
     #[template(path = "form.html")]
     struct FormTemplate<'a> {
+        form_title: &'a str,
+        submit_button: &'a str,
         fields: &'a [FieldDef],
         lang: &'a str,
-        submit_button: &'a str,
     }
 
     let tmpl = FormTemplate {
+        form_title: &state.cfg.form_title,
+        submit_button: &state.cfg.submit_button,
         fields: &state.cfg.fields,
         lang: "en",
-        submit_button: &state.cfg.submit_button,
     };
     match tmpl.render() {
         Ok(html) => Html(html).into_response(),

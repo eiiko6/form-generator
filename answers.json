@@ -1,0 +1,54 @@
+[
+  {
+    "timestamp": "2026-02-19T12:46:14.811307031Z",
+    "answers": {
+      "experience_level": "",
+      "full_name": "",
+      "age": "",
+      "newsletter": "true",
+      "about_you": "",
+      "comments": "",
+      "department": "Design",
+      "contact_number": "",
+      "password": "!Y%5#yH^QcZmwHR",
+      "favorite_color": "",
+      "email": "foobar@mail.com",
+      "website": ""
+    }
+  },
+  {
+    "timestamp": "2026-02-19T12:46:37.950223451Z",
+    "answers": {
+      "full_name": "",
+      "contact_number": "",
+      "website": "",
+      "favorite_color": "",
+      "age": "",
+      "password": "!Y%5#yH^QcZmwHR",
+      "department": "Design",
+      "comments": "",
+      "experience_level": "Mid-level",
+      "newsletter": "true",
+      "about_you": "",
+      "email": "foobar@mail.com"
+    }
+  },
+  {
+    "timestamp": "2026-02-19T12:50:56.697577391Z",
+    "answers": {
+      "website": "https://asdf.com",
+      "password": "!Y%5#yH^QcZmwHR",
+      "favorite_color": "aasdf",
+      "about_you": "asdf",
+      "terms": "true",
+      "comments": "asdfasdf",
+      "age": "3",
+      "contact_number": "asdf",
+      "full_name": "babro",
+      "newsletter": "true",
+      "department": "Engineering",
+      "email": "foobar@mail.com",
+      "experience_level": "Junior"
+    }
+  }
+]
