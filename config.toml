@@ -7,6 +7,12 @@ form_title = "User Onboarding Survey"
 # Text displayed on the primary action button
 submit_button = "Complete Submission"
 
+# Text displayed in the success popup shown after submitting
+success_message = "Success sending submission"
+
+# Text displayed in a popup shown after submitting, in case of an error
+error_message = "Error while sending submission"
+
 # Standard single-line input
 [[fields]]
 name = "username"

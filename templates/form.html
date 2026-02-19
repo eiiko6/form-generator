@@ -6,16 +6,11 @@
 <div class="form-container">
   <h1>{{ form_title }}</h1>
 
-  <form action="submit" method="POST" autocomplete="off">
+  <form id="form-gen" action="submit" method="POST" autocomplete="off">
     {% for f in fields %}
-
-      {% if let Some(html) = f.html_before %}
-          {{ html | safe }}
-      {% endif %}
-
+      {% if let Some(html) = f.html_before %}{{ html | safe }}{% endif %}
       <div class="field">
         {% match f.widget() %}
-
           {% when FieldWidget::Checkbox %}
             <label for="{{ f.name }}" class="checkbox-label">
               <input id="{{ f.name }}" name="{{ f.name }}" type="checkbox" value="true">
@@ -50,14 +45,9 @@
               <span class="desc">{{ f.description }}</span>
             </label>
             <input id="{{ f.name }}" name="{{ f.name }}" type="{{ input_type }}" placeholder="{{ f.title|lower }}">
-
         {% endmatch %}
       </div>
-
-      {% if let Some(html) = f.html_after %}
-          {{ html | safe }}
-      {% endif %}
-
+      {% if let Some(html) = f.html_after %}{{ html | safe }}{% endif %}
     {% endfor %}
 
     <div class="submit-container">
@@ -65,4 +55,92 @@
     </div>
   </form>
 </div>
+
+<div id="status-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h2 id="modal-title">Status</h2>
+    <p id="modal-text"></p>
+    <button class="modal-close-btn" onclick="closeModal()">OK</button>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('form-gen');
+  const modal = document.getElementById('status-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalText = document.getElementById('modal-text');
+  const STORAGE_KEY = 'form_generator_draft';
+
+  // Load Draft
+  function loadDraft() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      Object.keys(data).forEach(key => {
+        const input = form.elements[key];
+        if (!input) return;
+        if (input.type === 'checkbox') input.checked = data[key] === "true";
+        else input.value = data[key];
+      });
+    } catch (e) {}
+  }
+
+  // Save Draft
+  function saveDraft() {
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => data[key] = value);
+    form.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      data[cb.name] = cb.checked ? "true" : "false";
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function showModal(title, message, isError = false) {
+    modalTitle.innerText = title;
+    modalText.innerText = message;
+
+    modalTitle.className = isError ? 'error-title' : 'success-title';
+
+    modal.classList.add('active');
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerText;
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Submitting...";
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new URLSearchParams(new FormData(form)),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+
+      if (response.ok) {
+        localStorage.removeItem(STORAGE_KEY);
+        form.reset();
+        showModal("{{ success_message }}", "", false);
+      } else {
+        showModal("{{ error_message }}", "", true);
+      }
+    } catch (err) {
+      showModal("{{ error_message }}", err, true);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = originalBtnText;
+    }
+  });
+
+  form.addEventListener('input', saveDraft);
+  window.addEventListener('DOMContentLoaded', loadDraft);
+</script>
 {% endblock %}

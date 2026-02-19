@@ -49,6 +49,8 @@ pub struct AppConfig {
     pub json_output: Option<String>,
     pub form_title: String,
     pub submit_button: String,
+    pub success_message: String,
+    pub error_message: String,
     pub fields: Vec<FieldDef>,
 }
 
@@ -65,6 +67,8 @@ pub async fn render_form(State(state): State<AppState>) -> impl IntoResponse {
     struct FormTemplate<'a> {
         form_title: &'a str,
         submit_button: &'a str,
+        success_message: &'a str,
+        error_message: &'a str,
         fields: &'a [FieldDef],
         lang: &'a str,
     }
@@ -72,6 +76,8 @@ pub async fn render_form(State(state): State<AppState>) -> impl IntoResponse {
     let tmpl = FormTemplate {
         form_title: &state.cfg.form_title,
         submit_button: &state.cfg.submit_button,
+        success_message: &state.cfg.success_message,
+        error_message: &state.cfg.error_message,
         fields: &state.cfg.fields,
         lang: "en",
     };
@@ -133,16 +139,16 @@ pub async fn submit(
             .into_response();
     }
 
-    // tracing::info!("Entry submitted: {:?}", entry.answers);
+    tracing::debug!("Entry submitted: {:?}", entry.answers);
 
-    Html(
-        r#"
-        <html>
-            <body>
-                <p>Saved. <a href="/">Back</a></p>
-            </body>
-        </html>
-        "#,
-    )
-    .into_response()
+    // Html(
+    //     r#"
+    //     <html>
+    //         <body>
+    //             <p>Saved. <a href="/">Back</a></p>
+    //         </body>
+    //     </html>
+    //     "#,
+    // )
+    StatusCode::OK.into_response()
 }

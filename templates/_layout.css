@@ -53,6 +53,10 @@ h1 {
     letter-spacing: -0.025em;
 }
 
+h1 i, h2 i, h3 i {
+    margin-right: 0.5rem;
+}
+
 .form-container {
     background-color: var(--bg-card);
     width: 100%;
@@ -213,6 +217,66 @@ button {
 button:hover {
     background-color: var(--primary-hover);
     transform: translateY(-1px);
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-base);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--text-main);
+}
+
+.modal-content p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.modal-close-btn {
+    background-color: var(--primary);
+    color: var(--text-inv);
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    cursor: pointer;
+    width: auto;
+}
+
+.modal-content h2.error-title {
+    color: #ef4444;
 }
 
 @media (max-width: 640px) {
