@@ -20,10 +20,28 @@ pub struct FieldDef {
     pub options: Option<Vec<String>>,
 }
 
+pub enum FieldWidget<'a> {
+    Checkbox,
+    Textarea,
+    Select(&'a [String]),
+    Input(&'a str),
+}
+
+impl FieldDef {
+    pub fn widget(&self) -> FieldWidget<'_> {
+        match self.answer_type.as_str() {
+            "checkbox" => FieldWidget::Checkbox,
+            "textarea" => FieldWidget::Textarea,
+            "select" => FieldWidget::Select(self.options.as_deref().unwrap_or(&[])),
+            other => FieldWidget::Input(other),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct ResponseEntry {
     timestamp: chrono::DateTime<chrono::Utc>,
-    answers: HashMap<String, String>,
+    answers: HashMap<String, Option<String>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -65,11 +83,27 @@ pub async fn render_form(State(state): State<AppState>) -> impl IntoResponse {
 
 pub async fn submit(
     State(state): State<AppState>,
-    Form(form): Form<HashMap<String, String>>,
+    Form(mut form): Form<HashMap<String, String>>,
 ) -> impl IntoResponse {
+    let mut processed_answers = HashMap::new();
+
+    for field in &state.cfg.fields {
+        let value = form
+            .remove(&field.name)
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty());
+
+        processed_answers.insert(field.name.clone(), value);
+    }
+
+    for (key, val) in form {
+        let value = Some(val.trim().to_string()).filter(|s| !s.is_empty());
+        processed_answers.insert(key, value);
+    }
+
     let entry = ResponseEntry {
         timestamp: Utc::now(),
-        answers: form,
+        answers: processed_answers,
     };
 
     let _guard = state.file_lock.lock().await;

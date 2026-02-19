@@ -22,6 +22,12 @@ struct Cli {
     #[arg(short, long)]
     output_file: Option<String>,
 
+    #[arg(short, long, default_value = "8081")]
+    port: u16,
+
+    #[arg(short = 'H', long)]
+    host: bool,
+
     #[arg(short, long)]
     verbose: bool,
 }
@@ -55,7 +61,7 @@ async fn main() -> anyhow::Result<()> {
 
     // rate limiter
     let governor_conf = GovernorConfigBuilder::default()
-        .per_second(3)
+        .per_second(1)
         .burst_size(10)
         .finish()
         .unwrap();
@@ -81,8 +87,11 @@ async fn main() -> anyhow::Result<()> {
         .layer(cors)
         .layer(GovernorLayer::new(governor_conf));
 
-    let port = std::env::var("SERVER_PORT").unwrap_or("8081".to_string());
-    let addr = format!("0.0.0.0:{port}");
+    let addr = if cli.host {
+        format!("0.0.0.0:{}", cli.port)
+    } else {
+        format!("127.0.0.1:{}", cli.port)
+    };
 
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     tracing::info!("Listening on {}", addr);

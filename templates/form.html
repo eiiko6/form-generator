@@ -7,50 +7,62 @@
   <h1>{{ form_title }}</h1>
 
   <form action="submit" method="POST" autocomplete="off">
-      {% for f in fields %}
-      {% if f.html_before.is_some() %}
-          {{ f.html_before.as_ref().unwrap() | safe }}
+    {% for f in fields %}
+
+      {% if let Some(html) = f.html_before %}
+          {{ html | safe }}
       {% endif %}
 
       <div class="field">
-          {% if f.answer_type == "checkbox" %}
-              <label for="{{ f.name }}" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
-                  <input id="{{ f.name }}" name="{{ f.name }}" type="checkbox" value="true">
-                  <div style="display: flex; flex-direction: column;">
-                      <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">{{ f.title }}</span>
-                      <span class="desc" style="margin: 4px 0 0 0;">{{ f.description }}</span>
-                  </div>
-              </label>
-          {% else %}
-              <label for="{{ f.name }}">
-                  <span style="display: block;">{{ f.title }}</span>
-                  <span class="desc">{{ f.description }}</span>
-              </label>
+        {% match f.widget() %}
 
-              {% if f.answer_type == "textarea" %}
-                  <textarea id="{{ f.name }}" name="{{ f.name }}" rows="10" placeholder="{{ f.title|lower }}"></textarea>
+          {% when FieldWidget::Checkbox %}
+            <label for="{{ f.name }}" class="checkbox-label">
+              <input id="{{ f.name }}" name="{{ f.name }}" type="checkbox" value="true">
+              <div class="label-content">
+                <span class="label-title">{{ f.title }}</span>
+                <span class="desc checkbox-desc">{{ f.description }}</span>
+              </div>
+            </label>
 
-              {% elif f.answer_type == "select" %}
-                  <select id="{{ f.name }}" name="{{ f.name }}">
-                      <option value="">Select an option</option>
-                      {% if f.options.is_some() %}
-                          {% for opt in f.options.as_ref().unwrap() %}
-                              <option value="{{ opt }}">{{ opt }}</option>
-                          {% endfor %}
-                      {% endif %}
-                  </select>
+          {% when FieldWidget::Textarea %}
+            <label for="{{ f.name }}">
+              <span class="label-title">{{ f.title }}</span>
+              <span class="desc">{{ f.description }}</span>
+            </label>
+            <textarea id="{{ f.name }}" name="{{ f.name }}" rows="10" placeholder="{{ f.title|lower }}"></textarea>
 
-              {% else %}
-                  <input id="{{ f.name }}" name="{{ f.name }}" type="{{ f.answer_type }}" placeholder="{{ f.title|lower }}">
-              {% endif %}
-          {% endif %}
+          {% when FieldWidget::Select with (options) %}
+            <label for="{{ f.name }}">
+              <span class="label-title">{{ f.title }}</span>
+              <span class="desc">{{ f.description }}</span>
+            </label>
+            <select id="{{ f.name }}" name="{{ f.name }}">
+              <option value="">Select an option</option>
+              {% for opt in options %}
+                <option value="{{ opt }}">{{ opt }}</option>
+              {% endfor %}
+            </select>
+
+          {% when FieldWidget::Input with (input_type) %}
+            <label for="{{ f.name }}">
+              <span class="label-title">{{ f.title }}</span>
+              <span class="desc">{{ f.description }}</span>
+            </label>
+            <input id="{{ f.name }}" name="{{ f.name }}" type="{{ input_type }}" placeholder="{{ f.title|lower }}">
+
+        {% endmatch %}
       </div>
 
-      {% if f.html_after.is_some() %}
-          {{ f.html_after.as_ref().unwrap() | safe }}
+      {% if let Some(html) = f.html_after %}
+          {{ html | safe }}
       {% endif %}
-      {% endfor %}
-    <div class="submit-container"><button type="submit">{{ submit_button }}</button></div>
+
+    {% endfor %}
+
+    <div class="submit-container">
+      <button type="submit">{{ submit_button }}</button>
+    </div>
   </form>
 </div>
 {% endblock %}
